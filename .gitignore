@@ -1,0 +1,16 @@
+node_modules/
+.next/
+out/
+build/
+*.log
+.env*.local
+.env
+.DS_Store
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+.claude/settings.local.json
+
+# Шрифты в public/fonts/ копируются автоматически через
+# scripts/copy-fonts.mjs (хуки predev/prebuild). В репо их не храним.
+public/fonts/
