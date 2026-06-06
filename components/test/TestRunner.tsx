@@ -32,33 +32,40 @@ export function TestRunner() {
   const canProceed = selected.length > 0;
   const autoAdvanceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Сбрасываем таймер при размонтировании или смене вопроса
-  useEffect(() => {
-    return () => {
-      if (autoAdvanceRef.current) {
-        clearTimeout(autoAdvanceRef.current);
-      }
-    };
-  }, [currentQuestionIndex]);
+  const cancelAutoAdvance = useCallback(() => {
+    if (autoAdvanceRef.current) {
+      clearTimeout(autoAdvanceRef.current);
+      autoAdvanceRef.current = null;
+    }
+  }, []);
+
+  // Сбрасываем pending-таймер при размонтировании.
+  useEffect(() => () => cancelAutoAdvance(), [cancelAutoAdvance]);
 
   const goNext = useCallback(() => {
     if (!canProceed) return;
+    cancelAutoAdvance();
     if (isLast) {
       finish();
-      router.push(`/test/${test.id}/result`);
+      router.replace(`/test/${test.id}/result`);
     } else {
       next();
     }
-  }, [canProceed, isLast, finish, next, router, test.id]);
+  }, [canProceed, cancelAutoAdvance, isLast, finish, next, router, test.id]);
+
+  const goPrev = useCallback(() => {
+    cancelAutoAdvance();
+    prev();
+  }, [cancelAutoAdvance, prev]);
 
   const handleAnswer = (questionId: string, answerIds: string[]) => {
     setAnswer(questionId, answerIds);
     if (question?.type !== "multi" && answerIds.length > 0) {
-      if (autoAdvanceRef.current) clearTimeout(autoAdvanceRef.current);
+      cancelAutoAdvance();
       autoAdvanceRef.current = setTimeout(() => {
         if (isLast) {
           finish();
-          router.push(`/test/${test.id}/result`);
+          router.replace(`/test/${test.id}/result`);
         } else {
           next();
         }
@@ -70,14 +77,16 @@ export function TestRunner() {
   useEffect(() => {
     if (status !== "running") return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft" && currentQuestionIndex > 0) prev();
+      if (e.key === "ArrowLeft" && currentQuestionIndex > 0) goPrev();
       else if (e.key === "ArrowRight" || e.key === "Enter") goNext();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [status, currentQuestionIndex, prev, goNext]);
+  }, [status, currentQuestionIndex, goPrev, goNext]);
 
-  if (status === "idle") {
+  if (status === "idle" || status === "finished") {
+    // status==="finished" возможен, если пользователь вернулся назад из результата
+    // или открыл URL вручную после сданного теста: показываем intro, чтобы пройти заново.
     return (
       <main className="min-h-screen flex items-center justify-center px-4 py-16 sm:py-20">
         <TestIntroCard test={test} onStart={start} />
@@ -86,7 +95,7 @@ export function TestRunner() {
   }
 
   if (!question) {
-    // status finished но без редиректа — на всякий случай
+    // защитный fallback — на пустой индекс
     return null;
   }
 
@@ -103,7 +112,7 @@ export function TestRunner() {
 
       <section className="flex-1 flex items-center px-4 sm:px-8 py-8 sm:py-12 overflow-hidden">
         <SwipeableArea
-          onPrev={() => currentQuestionIndex > 0 && prev()}
+          onPrev={() => currentQuestionIndex > 0 && goPrev()}
           onNext={() => canProceed && goNext()}
         >
           <AnimatePresence mode="wait" custom={direction} initial={false}>
@@ -133,9 +142,8 @@ export function TestRunner() {
           <Button
             variant="ghost"
             size="default"
-            onClick={prev}
+            onClick={goPrev}
             disabled={currentQuestionIndex === 0}
-           
           >
             <ArrowLeft className="h-4 w-4" strokeWidth={1.8} />
             Назад
@@ -147,7 +155,6 @@ export function TestRunner() {
               size="default"
               onClick={goNext}
               disabled={!canProceed}
-             
             >
               {isLast ? "Показать результат" : "Дальше"}
               {isLast ? (

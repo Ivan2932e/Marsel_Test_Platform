@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowUpRight, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -115,7 +116,6 @@ export function ResultCard({
             type="button"
             onClick={onRestart}
             className="inline-flex items-center gap-2 text-sm text-ink-muted hover:text-ink transition-colors"
-           
           >
             <RotateCcw className="h-3.5 w-3.5" strokeWidth={1.6} />
             Пройти ещё раз
@@ -132,13 +132,12 @@ export function ResultCard({
           <p>
             Результат носит информационный характер и не является медицинским
             диагнозом. Для профессиональной консультации обратитесь к специалисту.{" "}
-            <a
+            <Link
               href="/privacy"
               className="text-ink underline-offset-4 hover:underline"
-             
             >
               Политика конфиденциальности →
-            </a>
+            </Link>
           </p>
         </motion.div>
       </motion.div>

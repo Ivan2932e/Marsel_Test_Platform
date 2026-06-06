@@ -9,18 +9,10 @@ type Props = {
   text: string;
   selected: boolean;
   onSelect: () => void;
-  /** Для шкальных вопросов — отображается крупная цифра */
-  scaleNumber?: string;
   index: number;
 };
 
-export function AnswerOption({
-  text,
-  selected,
-  onSelect,
-  scaleNumber,
-  index,
-}: Props) {
+export function AnswerOption({ text, selected, onSelect, index }: Props) {
   return (
     <motion.button
       type="button"
@@ -34,7 +26,6 @@ export function AnswerOption({
       }}
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.985 }}
-     
       className={cn(
         "group relative w-full text-left",
         "rounded-2xl border bg-warm-white",
@@ -47,16 +38,6 @@ export function AnswerOption({
       )}
     >
       <div className="flex items-center gap-4">
-        {scaleNumber ? (
-          <span
-            className={cn(
-              "font-mono-tabular text-lg w-7 text-center",
-              selected ? "text-sage-deep" : "text-ink-faint",
-            )}
-          >
-            {scaleNumber}
-          </span>
-        ) : null}
         <span
           className={cn(
             "flex-1 text-[15px] sm:text-base leading-relaxed",

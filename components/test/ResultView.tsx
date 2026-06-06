@@ -25,13 +25,15 @@ import { PDFDownloadButton } from "./PDFDownloadButton";
  */
 export function ResultView() {
   const router = useRouter();
-  const { test, state, reset, clearSession } = useTest();
+  const { test, state, hydrated, reset, clearSession } = useTest();
   const [ready, setReady] = useState(false);
   const clearedRef = useRef(false);
 
-  // На монтировании ждём hydratation, потом фиксируем «снимок» ответов
-  // и тут же зачищаем sessionStorage.
+  // На монтировании ждём гидратацию из sessionStorage, потом фиксируем
+  // «снимок» ответов и тут же зачищаем sessionStorage.
   useEffect(() => {
+    // Пока не завершилась гидратация — не принимаем решений.
+    if (!hydrated) return;
     // Если ответов нет — пользователь зашёл напрямую, отправляем на старт.
     if (Object.keys(state.answers).length === 0) {
       router.replace(`/test/${test.id}`);
@@ -43,7 +45,7 @@ export function ResultView() {
       // микро-задержка чтобы реакция на финальный setAnswer успела отрисоваться
       requestAnimationFrame(() => clearSession());
     }
-  }, [state.answers, test.id, router, clearSession]);
+  }, [hydrated, state.answers, test.id, router, clearSession]);
 
   const { score, maxScore, range } = useMemo(() => {
     const s = calculateScore(test, state.answers);

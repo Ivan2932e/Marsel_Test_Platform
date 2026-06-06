@@ -12,7 +12,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { MarketingShell } from "@/components/shared/MarketingShell";
 import { listFeaturedTests, listTests } from "@/lib/tests/registry";
-import { LANDING_URL } from "@/lib/env";
 
 const spring = { type: "spring" as const, stiffness: 100, damping: 20 };
 

@@ -135,7 +135,6 @@ function ScaleRow({
               }}
               whileHover={{ y: -3 }}
               whileTap={{ scale: 0.96 }}
-             
               className={cn(
                 "relative aspect-square rounded-2xl border bg-warm-white",
                 "flex items-center justify-center font-mono-tabular text-xl sm:text-2xl",

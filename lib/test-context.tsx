@@ -8,6 +8,7 @@ import {
   useMemo,
   useReducer,
   useRef,
+  useState,
   type ReactNode,
 } from "react";
 import type { AnswersMap, Test } from "@/lib/tests/schema";
@@ -41,7 +42,15 @@ type Action =
 function reducer(state: TestState, action: Action): TestState {
   switch (action.type) {
     case "START":
-      return { ...state, status: "running", currentQuestionIndex: 0, direction: 1 };
+      // Старт всегда с чистого листа — даже если предыдущий запуск завершился
+      // или был восстановлен из sessionStorage, ответы сбрасываются.
+      return {
+        ...state,
+        status: "running",
+        currentQuestionIndex: 0,
+        direction: 1,
+        answers: {},
+      };
     case "ANSWER":
       return {
         ...state,
@@ -85,6 +94,12 @@ function storageKey(testId: string) {
 type TestContextValue = {
   test: Test;
   state: TestState;
+  /**
+   * true после того, как мы попытались восстановить состояние из sessionStorage
+   * (вне зависимости от того, было ли что восстанавливать). Нужно потребителям
+   * (ResultView), чтобы не принимать решений по пустому state до гидратации.
+   */
+  hydrated: boolean;
   start: () => void;
   setAnswer: (questionId: string, answerIds: string[]) => void;
   next: () => void;
@@ -116,10 +131,15 @@ export function TestProvider({
 }) {
   const [state, dispatch] = useReducer(reducer, test.id, createInitialState);
   const hydratedRef = useRef(false);
+  const [hydrated, setHydrated] = useState(false);
 
   // Восстановление прогресса из sessionStorage при монтировании.
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined") {
+      hydratedRef.current = true;
+      setHydrated(true);
+      return;
+    }
     try {
       const raw = window.sessionStorage.getItem(storageKey(test.id));
       if (raw) {
@@ -132,6 +152,7 @@ export function TestProvider({
       // sessionStorage может быть недоступен (приватный режим и т.п.) — игнорируем.
     } finally {
       hydratedRef.current = true;
+      setHydrated(true);
     }
   }, [test.id]);
 
@@ -167,6 +188,7 @@ export function TestProvider({
     () => ({
       test,
       state,
+      hydrated,
       start: () => dispatch({ type: "START" }),
       setAnswer: (questionId, answerIds) =>
         dispatch({ type: "ANSWER", questionId, answerIds }),
@@ -179,7 +201,7 @@ export function TestProvider({
       },
       clearSession,
     }),
-    [test, state, clearSession],
+    [test, state, hydrated, clearSession],
   );
 
   return <TestContext.Provider value={value}>{children}</TestContext.Provider>;

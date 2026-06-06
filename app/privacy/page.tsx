@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { MarketingShell } from "@/components/shared/MarketingShell";
-import { LANDING_URL, SPECIALIST_NAME } from "@/lib/env";
+import { LANDING_URL, SPECIALIST_NAME_DATIVE } from "@/lib/env";
 
 export const metadata = {
   title: "Политика конфиденциальности · Тесты",
@@ -110,8 +110,8 @@ export default function PrivacyPage() {
 
           <Section title="Связаться со специалистом">
             <p>
-              По любым вопросам — лично к {SPECIALIST_NAME}у через основной
-              сайт:
+              По любым вопросам — лично к {SPECIALIST_NAME_DATIVE} через
+              основной сайт:
             </p>
             <p className="mt-3">
               <a

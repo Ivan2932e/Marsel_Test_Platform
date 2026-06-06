@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
-import { LANDING_URL, SPECIALIST_NAME } from "@/lib/env";
+import { LANDING_URL, SPECIALIST_NAME, SPECIALIST_NAME_DATIVE } from "@/lib/env";
 
 export function Footer() {
   const year = new Date().getFullYear();
@@ -30,7 +30,7 @@ export function Footer() {
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 text-[15px] text-ink underline underline-offset-4 decoration-ink/30 hover:decoration-ink rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-4 focus-visible:ring-offset-cream"
               >
-                Записаться к {SPECIALIST_NAME}у
+                Записаться к {SPECIALIST_NAME_DATIVE}
                 <ArrowUpRight className="w-4 h-4" />
               </a>
             </motion.div>
