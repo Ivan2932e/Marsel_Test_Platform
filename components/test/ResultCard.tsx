@@ -103,7 +103,7 @@ export function ResultCard({
             variant={range.cta === "contact" ? "primary" : "sage"}
             size="lg"
           >
-            <a href={contactHref} target="_blank" rel="noreferrer">
+            <a href={contactHref} target="_blank" rel="noopener noreferrer">
               {range.cta === "contact" ? "Записаться к специалисту" : "Узнать больше"}
               <ArrowUpRight className="h-4 w-4" strokeWidth={1.8} />
             </a>

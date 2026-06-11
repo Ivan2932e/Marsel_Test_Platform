@@ -101,10 +101,10 @@ export default function PrivacyPage() {
 
           <Section title="Шрифты">
             <p>
-              Платформа подгружает шрифты с инфраструктуры Google Fonts.
-              При этом передаётся только техническая информация, необходимая
-              для отрисовки страницы (IP, заголовки браузера) — то же,
-              что при открытии любого другого сайта.
+              Шрифты скачиваются на этапе сборки и хостятся на том же домене,
+              что и сама платформа. Браузер не обращается к Google Fonts или
+              другим внешним CDN — никаких дополнительных запросов на сторонние
+              сервисы при открытии страниц не происходит.
             </p>
           </Section>
 
@@ -117,11 +117,32 @@ export default function PrivacyPage() {
               <a
                 href={LANDING_URL}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="text-ink underline-offset-4 hover:underline"
               >
                 {LANDING_URL.replace(/^https?:\/\//, "")}
               </a>
+            </p>
+          </Section>
+
+          <Section title="Если вы перейдёте к специалисту">
+            <p>
+              Тест-платформа — отдельный сервис. На основном сайте действует
+              своя политика обработки персональных данных: она применяется,
+              когда вы оставляете контактные данные для записи или подписания
+              договора оказания психологических услуг.
+            </p>
+            <p className="mt-3">
+              Ознакомиться:{" "}
+              <a
+                href={`${LANDING_URL}/privacy`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-ink underline-offset-4 hover:underline"
+              >
+                политика обработки ПДн на основном сайте
+              </a>
+              .
             </p>
           </Section>
 
@@ -130,6 +151,11 @@ export default function PrivacyPage() {
           <p className="text-[13px] text-ink-faint">
             Если архитектура платформы изменится — этот документ обновится
             раньше, чем какие-либо данные начнут собираться.
+          </p>
+
+          <p className="mt-6 text-[12.5px] text-ink-faint">
+            Платформа разработана для практики ИП Мухаметшин Марсель
+            Алмазович, ИНН 631625125106.
           </p>
         </article>
       </main>

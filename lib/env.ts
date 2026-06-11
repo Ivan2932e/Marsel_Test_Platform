@@ -1,5 +1,22 @@
-export const LANDING_URL =
-  process.env.NEXT_PUBLIC_LANDING_URL ?? "https://marsel.ru";
+const FALLBACK_LANDING_URL = "https://marsel.ru";
+
+/**
+ * LANDING_URL попадает в href ссылок. Если оператор по ошибке выставит
+ * `javascript:...` или `data:...`, при клике выполнится произвольный код.
+ * Принимаем только http/https; на всё остальное — fallback.
+ */
+function safeLandingUrl(raw: string | undefined): string {
+  if (!raw) return FALLBACK_LANDING_URL;
+  try {
+    const u = new URL(raw);
+    if (u.protocol === "http:" || u.protocol === "https:") return raw;
+  } catch {
+    // невалидный URL — падаем на fallback
+  }
+  return FALLBACK_LANDING_URL;
+}
+
+export const LANDING_URL = safeLandingUrl(process.env.NEXT_PUBLIC_LANDING_URL);
 
 export const SPECIALIST_NAME =
   process.env.NEXT_PUBLIC_SPECIALIST_NAME ?? "Марсель";

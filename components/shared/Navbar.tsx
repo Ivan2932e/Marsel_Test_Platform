@@ -61,7 +61,7 @@ export function Navbar() {
         <a
           href={LANDING_URL}
           target="_blank"
-          rel="noreferrer"
+          rel="noopener noreferrer"
           className="hidden md:inline-flex items-center h-10 px-5 rounded-full bg-ink text-cream text-[13.5px] hover:bg-ink-soft transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
         >
           К специалисту

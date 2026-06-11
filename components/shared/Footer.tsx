@@ -27,7 +27,7 @@ export function Footer() {
               <a
                 href={LANDING_URL}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-[15px] text-ink underline underline-offset-4 decoration-ink/30 hover:decoration-ink rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-4 focus-visible:ring-offset-cream"
               >
                 Записаться к {SPECIALIST_NAME_DATIVE}
@@ -78,7 +78,7 @@ export function Footer() {
                   <a
                     href={LANDING_URL}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 py-1 hover:text-ink transition-colors rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-4 focus-visible:ring-offset-cream"
                   >
                     Основной сайт
@@ -86,7 +86,7 @@ export function Footer() {
                   </a>
                 </li>
                 <li className="text-ink-muted">
-                  Москва · онлайн по всему миру
+                  Самара · онлайн по всей России
                 </li>
               </ul>
             </nav>
@@ -101,7 +101,7 @@ export function Footer() {
               {SPECIALIST_NAME} · тесты
             </p>
             <p className="text-[12.5px] text-ink-muted mt-1">
-              Самопроверка без сбора данных
+              ИП Мухаметшин Марсель Алмазович · ИНН 631625125106
             </p>
           </div>
           <p className="text-[12.5px] text-ink-muted">
@@ -109,6 +109,15 @@ export function Footer() {
             <Link href="/privacy" className="hover:text-ink-soft transition-colors">
               Политика конфиденциальности
             </Link>
+          </p>
+        </div>
+
+        <div className="mt-10 pt-6 border-t border-line/40 flex justify-center">
+          <p className="text-[11.5px] uppercase tracking-[0.22em] text-ink-faint">
+            Разработано{" "}
+            <span className="font-display normal-case tracking-normal text-[13px] text-ink-muted italic">
+              Rehy-Solutions
+            </span>
           </p>
         </div>
       </div>

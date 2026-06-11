@@ -11,6 +11,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { z } from "zod";
 import type { AnswersMap, Test } from "@/lib/tests/schema";
 
 /**
@@ -91,6 +92,19 @@ function storageKey(testId: string) {
   return `${STORAGE_PREFIX}${testId}`;
 }
 
+/**
+ * Защита от мусора в sessionStorage: чужое расширение или другая вкладка
+ * в том же origin может перезаписать наш ключ. Парсим строго — на любую
+ * невалидную форму игнорируем и стартуем с чистого state.
+ */
+const PersistedStateSchema = z.object({
+  testId: z.string().min(1),
+  status: z.enum(["idle", "running", "finished"]),
+  currentQuestionIndex: z.number().int().nonnegative(),
+  direction: z.union([z.literal(1), z.literal(-1)]),
+  answers: z.record(z.string(), z.array(z.string())),
+});
+
 type TestContextValue = {
   test: Test;
   state: TestState;
@@ -143,9 +157,13 @@ export function TestProvider({
     try {
       const raw = window.sessionStorage.getItem(storageKey(test.id));
       if (raw) {
-        const parsed = JSON.parse(raw) as TestState;
-        if (parsed.testId === test.id && parsed.status !== "finished") {
-          dispatch({ type: "HYDRATE", payload: parsed });
+        const parsed = PersistedStateSchema.safeParse(JSON.parse(raw));
+        if (
+          parsed.success &&
+          parsed.data.testId === test.id &&
+          parsed.data.status !== "finished"
+        ) {
+          dispatch({ type: "HYDRATE", payload: parsed.data });
         }
       }
     } catch {
