@@ -116,63 +116,47 @@ const styles = StyleSheet.create({
   },
   // ── hero ──
   eyebrow: {
-    marginTop: 30,
+    marginTop: 22,
     fontSize: 8.5,
     color: COLORS.sageDeep,
     textTransform: "uppercase",
     letterSpacing: 1.8,
   },
   title: {
-    marginTop: 8,
+    marginTop: 6,
     fontFamily: "Cormorant",
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: 500,
     color: COLORS.ink,
     lineHeight: 1.12,
   },
   subtitle: {
-    marginTop: 10,
-    fontSize: 11,
+    marginTop: 8,
+    fontSize: 10.5,
     color: COLORS.inkMuted,
-    lineHeight: 1.55,
+    lineHeight: 1.5,
   },
   // ── score block ──
   scoreBlock: {
-    marginTop: 24,
-    padding: 22,
+    marginTop: 18,
+    padding: 18,
     backgroundColor: COLORS.paper,
     border: `1pt solid ${COLORS.line}`,
     borderRadius: 10,
   },
-  scoreRow: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    justifyContent: "space-between",
-  },
-  scoreLeft: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-  },
-  scoreValue: {
-    fontFamily: "Cormorant",
-    fontSize: 52,
-    fontWeight: 500,
-    color: COLORS.ink,
-    lineHeight: 1,
-  },
-  scoreOf: {
-    fontSize: 13,
-    color: COLORS.inkMuted,
-    paddingBottom: 6,
-    marginLeft: 6,
-  },
   rangeLabel: {
     fontFamily: "Cormorant",
-    fontSize: 18,
-    fontStyle: "italic",
-    color: COLORS.sageDeep,
-    textAlign: "right",
-    maxWidth: 220,
+    fontSize: 24,
+    fontWeight: 500,
+    color: COLORS.ink,
+    lineHeight: 1.15,
+  },
+  scoreCaption: {
+    marginTop: 6,
+    fontSize: 8.5,
+    color: COLORS.inkFaint,
+    textTransform: "uppercase",
+    letterSpacing: 1.6,
   },
   // ── bar ──
   barWrap: { marginTop: 22, position: "relative" },
@@ -219,7 +203,7 @@ const styles = StyleSheet.create({
   },
   // ── sections ──
   sectionHead: {
-    marginTop: 26,
+    marginTop: 20,
     fontSize: 8.5,
     color: COLORS.sageDeep,
     textTransform: "uppercase",
@@ -233,14 +217,14 @@ const styles = StyleSheet.create({
     color: COLORS.ink,
   },
   body: {
-    marginTop: 10,
+    marginTop: 8,
     fontSize: 10.5,
     color: COLORS.inkSoft,
-    lineHeight: 1.65,
+    lineHeight: 1.6,
   },
   recommendation: {
-    marginTop: 22,
-    padding: 18,
+    marginTop: 16,
+    padding: 14,
     backgroundColor: COLORS.paper,
     border: `1pt solid ${COLORS.line}`,
     borderLeftWidth: 3,
@@ -271,8 +255,8 @@ const styles = StyleSheet.create({
   },
   // ── crisis box (для тяжёлых результатов) ──
   crisis: {
-    marginTop: 22,
-    padding: 16,
+    marginTop: 14,
+    padding: 12,
     backgroundColor: "#FBF1ED",
     border: `1pt solid ${COLORS.warning}`,
     borderLeftWidth: 3,
@@ -283,7 +267,7 @@ const styles = StyleSheet.create({
     color: COLORS.warning,
     textTransform: "uppercase",
     letterSpacing: 1.6,
-    marginBottom: 6,
+    marginBottom: 4,
     fontWeight: 500,
   },
   // ── about / contacts (page 2) ──
@@ -486,13 +470,10 @@ export function ResultPdfDocument({
 
           {/* score block */}
           <View style={styles.scoreBlock}>
-            <View style={styles.scoreRow}>
-              <View style={styles.scoreLeft}>
-                <Text style={styles.scoreValue}>{score}</Text>
-                <Text style={styles.scoreOf}>/ {maxScore} баллов</Text>
-              </View>
-              <Text style={styles.rangeLabel}>{range.label}</Text>
-            </View>
+            <Text style={styles.rangeLabel}>{range.label}</Text>
+            <Text style={styles.scoreCaption}>
+              Балл: {score} из {maxScore}
+            </Text>
 
             {/* segmented bar */}
             <View style={styles.barWrap}>

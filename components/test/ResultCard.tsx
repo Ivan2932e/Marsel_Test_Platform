@@ -63,20 +63,21 @@ export function ResultCard({
           Результат · {test.title}
         </motion.span>
 
-        <motion.div
-          variants={item}
-          className="mt-6 flex items-end gap-3 font-mono-tabular text-ink"
-        >
-          <AnimatedScore to={score} className="text-[88px] leading-none" />
-          <span className="pb-3 text-2xl text-ink-faint">/ {maxScore}</span>
-        </motion.div>
-
         <motion.h1
           variants={item}
-          className="mt-6 font-display text-[34px] leading-[1.1] sm:text-[42px] text-balance"
+          className="mt-6 font-display text-[34px] leading-[1.1] sm:text-[46px] text-balance"
         >
           {range.label}
         </motion.h1>
+
+        <motion.div
+          variants={item}
+          className="mt-4 inline-flex items-baseline gap-1.5 text-[12.5px] uppercase tracking-[0.16em] text-ink-faint font-mono-tabular"
+        >
+          <span>Балл:</span>
+          <AnimatedScore to={score} className="text-ink-muted" />
+          <span>/ {maxScore}</span>
+        </motion.div>
 
         <motion.p
           variants={item}
