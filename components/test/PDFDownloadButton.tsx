@@ -13,7 +13,10 @@ type Props = {
   range: ScoreRange;
 };
 
-type Status = "idle" | "busy" | "error";
+type Status =
+  | { kind: "idle" }
+  | { kind: "busy" }
+  | { kind: "error"; message: string };
 
 /**
  * Генерация PDF полностью на клиенте.
@@ -21,11 +24,11 @@ type Status = "idle" | "busy" | "error";
  * ни байта не уходит на сервер ни при импорте, ни при сборке PDF.
  */
 export function PDFDownloadButton({ test, score, maxScore, range }: Props) {
-  const [status, setStatus] = useState<Status>("idle");
+  const [status, setStatus] = useState<Status>({ kind: "idle" });
 
   const handleDownload = async () => {
-    if (status === "busy") return;
-    setStatus("busy");
+    if (status.kind === "busy") return;
+    setStatus({ kind: "busy" });
     try {
       const [{ pdf }, { ResultPdfDocument }] = await Promise.all([
         import("@react-pdf/renderer"),
@@ -58,12 +61,15 @@ export function PDFDownloadButton({ test, score, maxScore, range }: Props) {
       a.click();
       document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 0);
-      setStatus("idle");
+      setStatus({ kind: "idle" });
     } catch (e) {
       console.error("PDF generation failed", e);
-      setStatus("error");
-      // через 4 секунды возвращаем кнопку в обычное состояние
-      setTimeout(() => setStatus("idle"), 4000);
+      const message =
+        e instanceof Error && e.message
+          ? e.message
+          : "Что-то пошло не так при сборке документа.";
+      setStatus({ kind: "error", message });
+      setTimeout(() => setStatus({ kind: "idle" }), 6000);
     }
   };
 
@@ -73,31 +79,31 @@ export function PDFDownloadButton({ test, score, maxScore, range }: Props) {
         variant="ghost"
         size="lg"
         onClick={handleDownload}
-        disabled={status === "busy"}
+        disabled={status.kind === "busy"}
       >
-        {status === "busy" ? (
+        {status.kind === "busy" ? (
           <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.8} />
-        ) : status === "error" ? (
+        ) : status.kind === "error" ? (
           <AlertCircle className="h-4 w-4 text-danger" strokeWidth={1.8} />
         ) : (
           <Download className="h-4 w-4" strokeWidth={1.8} />
         )}
-        {status === "busy"
+        {status.kind === "busy"
           ? "Готовлю PDF…"
-          : status === "error"
+          : status.kind === "error"
             ? "Не удалось — попробуйте ещё раз"
             : "Скачать результат (PDF)"}
       </Button>
 
       <AnimatePresence>
-        {status === "error" ? (
+        {status.kind === "error" ? (
           <motion.p
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="text-xs text-danger pl-1"
+            className="text-xs text-danger pl-1 max-w-[420px] break-words"
           >
-            Проверьте подключение к интернету для загрузки шрифтов.
+            {status.message}
           </motion.p>
         ) : null}
       </AnimatePresence>
