@@ -32,6 +32,11 @@ export function TestRunner() {
   const canProceed = selected.length > 0;
   const autoAdvanceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Между dispatch FINISH и завершением router.replace состояние уже
+  // `finished`, но мы ещё не на /result. Чтобы не показывать intro в этом
+  // окне (он мигает как «главная теста»), держим явный флаг и рендерим лоадер.
+  const navigatingToResultRef = useRef(false);
+
   const cancelAutoAdvance = useCallback(() => {
     if (autoAdvanceRef.current) {
       clearTimeout(autoAdvanceRef.current);
@@ -42,16 +47,21 @@ export function TestRunner() {
   // Сбрасываем pending-таймер при размонтировании.
   useEffect(() => () => cancelAutoAdvance(), [cancelAutoAdvance]);
 
+  const goToResult = useCallback(() => {
+    navigatingToResultRef.current = true;
+    finish();
+    router.replace(`/test/${test.id}/result`);
+  }, [finish, router, test.id]);
+
   const goNext = useCallback(() => {
     if (!canProceed) return;
     cancelAutoAdvance();
     if (isLast) {
-      finish();
-      router.replace(`/test/${test.id}/result`);
+      goToResult();
     } else {
       next();
     }
-  }, [canProceed, cancelAutoAdvance, isLast, finish, next, router, test.id]);
+  }, [canProceed, cancelAutoAdvance, isLast, goToResult, next]);
 
   const goPrev = useCallback(() => {
     cancelAutoAdvance();
@@ -64,8 +74,7 @@ export function TestRunner() {
       cancelAutoAdvance();
       autoAdvanceRef.current = setTimeout(() => {
         if (isLast) {
-          finish();
-          router.replace(`/test/${test.id}/result`);
+          goToResult();
         } else {
           next();
         }
@@ -83,6 +92,17 @@ export function TestRunner() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [status, currentQuestionIndex, goPrev, goNext]);
+
+  // Окно «только что нажали finish, ждём пока router.replace доедет до /result».
+  // В этот момент status уже "finished", но нам нельзя показывать intro —
+  // иначе он мигнёт как «главная теста».
+  if (status === "finished" && navigatingToResultRef.current) {
+    return (
+      <main className="min-h-screen flex items-center justify-center px-4">
+        <span className="text-sm text-ink-faint">Открываю результат…</span>
+      </main>
+    );
+  }
 
   if (status === "idle" || status === "finished") {
     // status==="finished" возможен, если пользователь вернулся назад из результата

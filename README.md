@@ -71,7 +71,10 @@ lib/
     categories.ts                # каталог категорий
     registry.ts                 # центральная точка регистрации тестов
     items/
-      placeholder.ts            # демо-тест (будет заменён)
+      beck-anxiety.ts           # Шкала тревоги Бека (BAI)
+      beck-depression.ts        # Шкала депрессии Бека (BDI)
+      hads-anxiety.ts           # HADS · шкала тревоги
+      hads-depression.ts        # HADS · шкала депрессии
 
 hooks/
   usePrefersReducedMotion.ts

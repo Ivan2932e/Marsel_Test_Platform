@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useTest } from "@/lib/test-context";
@@ -8,6 +8,7 @@ import {
   calculateScore,
   maxPossibleScore,
   resolveScoreRange,
+  type ScoreRange,
 } from "@/lib/tests/schema";
 import { ResultCard } from "./ResultCard";
 import { PDFDownloadButton } from "./PDFDownloadButton";
@@ -16,50 +17,67 @@ import { PDFDownloadButton } from "./PDFDownloadButton";
  * Результирующий экран.
  *
  * Жизненный цикл:
- *   1. Читаем ответы из контекста (восстановлены из sessionStorage).
- *   2. Считаем score локально, разрешаем диапазон.
- *   3. Сразу после первого рендера — clearSession():
- *      sessionStorage чистится, любые следы прохождения удаляются.
- *   4. Если ответов в контексте нет (например, открыта страница напрямую),
- *      перенаправляем на старт теста.
+ *   1. Ждём гидратацию TestProvider из sessionStorage.
+ *   2. Один раз снимаем snapshot ответов → считаем score/maxScore/range.
+ *      Дальше ничего из контекста не читаем для отображения — snapshot фиксирует
+ *      результат до того, как мы зачистим sessionStorage и до того, как
+ *      пользователь нажмёт «пройти ещё раз» (последнее сбрасывает state.answers).
+ *   3. Сразу после захвата — clearSession(): sessionStorage чистится,
+ *      следы прохождения удаляются.
+ *   4. Если ответов не оказалось (зашли по URL без прохождения), редиректим
+ *      на intro.
  */
+type Snapshot = {
+  score: number;
+  maxScore: number;
+  range: ScoreRange;
+};
+
 export function ResultView() {
   const router = useRouter();
-  const { test, state, hydrated, reset, clearSession } = useTest();
-  const [ready, setReady] = useState(false);
-  const clearedRef = useRef(false);
+  const { test, state, hydrated, clearSession } = useTest();
+  const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
 
-  // На монтировании ждём гидратацию из sessionStorage, потом фиксируем
-  // «снимок» ответов и тут же зачищаем sessionStorage.
   useEffect(() => {
-    // Пока не завершилась гидратация — не принимаем решений.
     if (!hydrated) return;
-    // Если ответов нет — пользователь зашёл напрямую, отправляем на старт.
+    // Уже захватили snapshot — нечего пересчитывать и не на что реагировать.
+    // Это защищает результат от затирания после clearSession / restart.
+    if (snapshot) return;
+
     if (Object.keys(state.answers).length === 0) {
       router.replace(`/test/${test.id}`);
       return;
     }
-    setReady(true);
-    if (!clearedRef.current) {
-      clearedRef.current = true;
-      // микро-задержка чтобы реакция на финальный setAnswer успела отрисоваться
-      requestAnimationFrame(() => clearSession());
+
+    const score = calculateScore(test, state.answers);
+    const maxScore = maxPossibleScore(test);
+    const range = resolveScoreRange(test, score);
+
+    // Невалидное состояние: ответы есть, но в шкалу не попадаем.
+    // Не должно случаться — но если случилось, отправим на intro,
+    // вместо того чтобы виснуть на «считаю результат…».
+    if (!range) {
+      router.replace(`/test/${test.id}`);
+      return;
     }
-  }, [hydrated, state.answers, test.id, router, clearSession]);
 
-  const { score, maxScore, range } = useMemo(() => {
-    const s = calculateScore(test, state.answers);
-    const max = maxPossibleScore(test);
-    const r = resolveScoreRange(test, s);
-    return { score: s, maxScore: max, range: r };
-  }, [test, state.answers]);
+    setSnapshot({ score, maxScore, range });
+    // Зачищаем sessionStorage на следующем кадре — snapshot уже у нас.
+    requestAnimationFrame(() => clearSession());
+  }, [hydrated, snapshot, state.answers, test, router, clearSession]);
 
+  /**
+   * Перезапуск теста: достаточно навигировать на /test/<id>.
+   * Не дёргаем reset() из контекста — иначе React успеет ре-рендерить
+   * ResultView с пустыми ответами до того, как навигация завершится,
+   * и из-за этого могут потеряться визуальные кадры. Сброс ответов
+   * произойдёт автоматически при дисптаче START на intro-экране.
+   */
   const handleRestart = () => {
-    reset();
     router.push(`/test/${test.id}`);
   };
 
-  if (!ready || !range) {
+  if (!snapshot) {
     return (
       <main className="min-h-screen flex items-center justify-center">
         <span className="text-sm text-ink-faint">Считаю результат…</span>
@@ -76,16 +94,16 @@ export function ResultView() {
     >
       <ResultCard
         test={test}
-        score={score}
-        maxScore={maxScore}
-        range={range}
+        score={snapshot.score}
+        maxScore={snapshot.maxScore}
+        range={snapshot.range}
         onRestart={handleRestart}
         pdfButton={
           <PDFDownloadButton
             test={test}
-            score={score}
-            maxScore={maxScore}
-            range={range}
+            score={snapshot.score}
+            maxScore={snapshot.maxScore}
+            range={snapshot.range}
           />
         }
       />

@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { ArrowUpRight, Clock, ListChecks, Lock } from "lucide-react";
 import type { Test } from "@/lib/tests/schema";
 import { isPaid } from "@/lib/tests/schema";
-import { cn } from "@/lib/utils";
+import { cn, pluralRu } from "@/lib/utils";
 
 const accentClass: Record<NonNullable<Test["accent"]>, string> = {
   sage: "from-sage-light/35 via-warm-white to-cream",
@@ -82,7 +82,13 @@ export function TestCard({ test, index }: Props) {
                 <span className="font-mono-tabular text-ink-muted">
                   {test.questions.length}
                 </span>
-                <span>вопросов</span>
+                <span>
+                  {pluralRu(test.questions.length, [
+                    "вопрос",
+                    "вопроса",
+                    "вопросов",
+                  ])}
+                </span>
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5" strokeWidth={1.6} />

@@ -5,6 +5,7 @@ import { Lock } from "lucide-react";
 import { MarketingShell } from "@/components/shared/MarketingShell";
 import { TestCard } from "@/components/test/TestCard";
 import { listTestsByCategory } from "@/lib/tests/registry";
+import { pluralRu } from "@/lib/utils";
 
 const spring = { type: "spring" as const, stiffness: 100, damping: 20 };
 
@@ -64,7 +65,11 @@ export default function TestsCatalogPage() {
                   </div>
                   <span className="font-mono-tabular text-[12px] text-ink-faint">
                     {group.tests.length} ·{" "}
-                    {group.tests.length === 1 ? "тест" : "тестов"}
+                    {pluralRu(group.tests.length, [
+                      "тест",
+                      "теста",
+                      "тестов",
+                    ])}
                   </span>
                 </div>
 

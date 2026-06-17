@@ -1,6 +1,9 @@
 import { categories, type Category } from "./categories";
 import { tierOf, type Test } from "./schema";
-import { placeholderTest } from "./items/placeholder";
+import { beckAnxietyTest } from "./items/beck-anxiety";
+import { beckDepressionTest } from "./items/beck-depression";
+import { hadsAnxietyTest } from "./items/hads-anxiety";
+import { hadsDepressionTest } from "./items/hads-depression";
 
 /**
  * Реестр всех доступных тестов.
@@ -10,7 +13,12 @@ import { placeholderTest } from "./items/placeholder";
  *   2. Импортировать его сюда и добавить в массив `tests`.
  * Никаких изменений в компонентах или маршрутах не требуется.
  */
-const tests: readonly Test[] = [placeholderTest];
+const tests: readonly Test[] = [
+  hadsAnxietyTest,
+  hadsDepressionTest,
+  beckAnxietyTest,
+  beckDepressionTest,
+];
 
 export function listTests(): readonly Test[] {
   return tests;

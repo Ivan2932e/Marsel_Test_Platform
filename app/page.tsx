@@ -11,26 +11,23 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MarketingShell } from "@/components/shared/MarketingShell";
-import { listFeaturedTests, listTests } from "@/lib/tests/registry";
+import { TestCard } from "@/components/test/TestCard";
+import { listTestsByCategory } from "@/lib/tests/registry";
+import { pluralRu } from "@/lib/utils";
 
 const spring = { type: "spring" as const, stiffness: 100, damping: 20 };
 
 export default function HomePage() {
-  const tests = listTests();
-  const featured = listFeaturedTests();
-  const firstTest = featured[0] ?? tests[0];
-  const startHref = firstTest ? `/test/${firstTest.id}` : "/test";
-
   return (
     <MarketingShell>
-      <Hero startHref={startHref} />
+      <Hero />
       <Principles />
-      <FeaturedTest />
+      <TestsCatalog />
     </MarketingShell>
   );
 }
 
-function Hero({ startHref }: { startHref: string }) {
+function Hero() {
   return (
     <section
       id="hero"
@@ -83,13 +80,13 @@ function Hero({ startHref }: { startHref: string }) {
               className="mt-9 flex flex-col sm:flex-row gap-3 sm:gap-4"
             >
               <Button asChild size="lg">
-                <Link href={startHref}>
-                  Начать тест
+                <Link href="#tests">
+                  Выбрать тест
                   <ArrowUpRight className="w-4 h-4" />
                 </Link>
               </Button>
               <Button asChild size="lg" variant="ghost">
-                <Link href="/test">Каталог тестов</Link>
+                <Link href="/test">Все категории</Link>
               </Button>
             </motion.div>
 
@@ -104,7 +101,6 @@ function Hero({ startHref }: { startHref: string }) {
             </motion.div>
           </div>
 
-          {/* визуальный «органик-блоб» как на лендинге, но без фото — карточка-цитата */}
           <motion.div
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -222,58 +218,83 @@ function Principles() {
   );
 }
 
-function FeaturedTest() {
-  const featured = listFeaturedTests();
-  const test = featured[0];
-  if (!test) return null;
+function TestsCatalog() {
+  const groups = listTestsByCategory();
+  const total = groups.reduce((acc, g) => acc + g.tests.length, 0);
 
   return (
-    <section className="relative px-6 lg:px-10 pb-24 md:pb-32">
+    <section id="tests" className="relative px-6 lg:px-10 pb-24 md:pb-32 scroll-mt-24">
       <div className="mx-auto max-w-6xl">
         <motion.div
-          initial={{ opacity: 0, y: 18 }}
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
-          transition={{ ...spring }}
-          className="rounded-[2rem] bg-warm-white border border-line ring-soft p-8 md:p-12 grain"
+          transition={spring}
+          className="mb-12 md:mb-16 flex items-end justify-between gap-6 flex-wrap"
         >
-          <div className="relative z-10 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
-            <div className="max-w-xl">
-              <p className="text-[12.5px] uppercase tracking-[0.18em] text-sage-deep">
-                Можно начать прямо сейчас
-              </p>
-              <h2 className="mt-4 font-display text-[clamp(1.9rem,4vw,2.6rem)] leading-[1.1] text-ink text-balance">
-                {test.title}
-              </h2>
-              <p className="mt-4 text-[15.5px] leading-relaxed text-ink-muted text-pretty">
-                {test.subtitle}
-              </p>
-              <div className="mt-6 flex items-center gap-x-5 gap-y-2 text-[13px] text-ink-faint flex-wrap">
-                <span className="inline-flex items-center gap-1.5">
-                  <ListChecks className="w-3.5 h-3.5" strokeWidth={1.6} />
-                  <span className="font-mono-tabular text-ink-muted">
-                    {test.questions.length}
-                  </span>
-                  <span>вопросов</span>
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <Timer className="w-3.5 h-3.5" strokeWidth={1.6} />
-                  {test.duration}
-                </span>
-                <span className="px-2 py-0.5 rounded-full border border-sage/30 text-[11px] uppercase tracking-[0.12em] text-sage-deep">
-                  Бесплатно
-                </span>
-              </div>
-            </div>
-
-            <Button asChild size="lg">
-              <Link href={`/test/${test.id}`}>
-                Начать
-                <ArrowUpRight className="w-4 h-4" />
-              </Link>
-            </Button>
+          <div className="max-w-xl">
+            <p className="text-[12.5px] uppercase tracking-[0.18em] text-sage-deep mb-4">
+              Доступные тесты
+            </p>
+            <h2 className="font-display text-[clamp(1.9rem,4vw,2.8rem)] leading-[1.08] text-ink text-balance">
+              Выберите,
+              <span className="italic text-ink-soft"> с чего хочется начать</span>
+            </h2>
           </div>
+          {total > 0 ? (
+            <span className="font-mono-tabular text-[12px] text-ink-faint">
+              {total} · {pluralRu(total, ["тест", "теста", "тестов"])}
+            </span>
+          ) : null}
         </motion.div>
+
+        {groups.length === 0 ? (
+          <p className="text-center text-ink-muted py-12">
+            Тесты появятся здесь, как только будут добавлены.
+          </p>
+        ) : (
+          <div className="space-y-14 md:space-y-20">
+            {groups.map((group, gi) => (
+              <motion.div
+                key={group.category?.id ?? "uncategorized"}
+                initial={{ opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ ...spring, delay: gi * 0.06 }}
+              >
+                <div className="mb-7 md:mb-9 flex items-baseline justify-between gap-6 flex-wrap">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.18em] text-sage-deep">
+                      Категория
+                    </p>
+                    <h3 className="mt-2 font-display text-[22px] sm:text-[26px] leading-tight text-ink">
+                      {group.category?.label ?? "Без категории"}
+                    </h3>
+                    {group.category?.description ? (
+                      <p className="mt-2 max-w-md text-[13.5px] text-ink-muted">
+                        {group.category.description}
+                      </p>
+                    ) : null}
+                  </div>
+                  <span className="font-mono-tabular text-[12px] text-ink-faint">
+                    {group.tests.length} ·{" "}
+                    {pluralRu(group.tests.length, [
+                      "тест",
+                      "теста",
+                      "тестов",
+                    ])}
+                  </span>
+                </div>
+
+                <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {group.tests.map((t, i) => (
+                    <TestCard key={t.id} test={t} index={i} />
+                  ))}
+                </ul>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

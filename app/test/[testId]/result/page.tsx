@@ -15,9 +15,20 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { testId } = await params;
   const test = getTestById(testId);
-  if (!test) return { title: "Результат теста" };
+  if (!test) {
+    return {
+      title: "Результат теста",
+      robots: { index: false, follow: false },
+    };
+  }
   return {
     title: `Результат · ${test.title}`,
+    description:
+      "Результат самопроверки. Документ собирается у вас в браузере и нигде не сохраняется.",
+    alternates: { canonical: `/test/${test.id}/result` },
+    // Страница результата зависит от sessionStorage — без прохождения теста
+    // она перенаправляет, индексировать смысла нет.
+    robots: { index: false, follow: true },
   };
 }
 
