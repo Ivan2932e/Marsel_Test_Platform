@@ -11,7 +11,7 @@ type Props = {
   className?: string;
 };
 
-export function AnimatedScore({ to, duration = 1.6, className }: Props) {
+export function AnimatedScore({ to, duration = 1.1, className }: Props) {
   const reduced = usePrefersReducedMotion();
   const [value, setValue] = useState(reduced ? to : 0);
 

@@ -19,11 +19,7 @@ export function AnswerOption({ text, selected, onSelect, index }: Props) {
       onClick={onSelect}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{
-        duration: 0.45,
-        delay: index * 0.05,
-        ease: easeOutSoft,
-      }}
+      transition={{ duration: 0.4, ease: easeOutSoft }}
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.985 }}
       className={cn(
@@ -48,14 +44,25 @@ export function AnswerOption({ text, selected, onSelect, index }: Props) {
         </span>
         <span
           className={cn(
-            "flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition-all duration-300",
+            "flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition-[background-color,border-color,color] duration-300",
             selected
               ? "bg-sage border-sage text-cream"
               : "border-line text-transparent group-hover:border-ink/30",
           )}
           aria-hidden
         >
-          <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
+          {selected ? (
+            <motion.span
+              initial={{ scale: 0.6 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 400, damping: 22 }}
+              className="inline-flex"
+            >
+              <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
+            </motion.span>
+          ) : (
+            <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
+          )}
         </span>
       </div>
     </motion.button>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   AnimatePresence,
@@ -8,13 +8,14 @@ import {
   useDragControls,
   type PanInfo,
 } from "framer-motion";
-import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTest } from "@/lib/test-context";
 import { TestIntroCard } from "./TestIntroCard";
 import { QuestionCard } from "./QuestionCard";
 import { ProgressBar } from "./ProgressBar";
 import { easeOutSoft } from "@/lib/motion";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 const SWIPE_THRESHOLD = 80;
 const AUTO_ADVANCE_MS = 400;
@@ -23,6 +24,7 @@ export function TestRunner() {
   const router = useRouter();
   const { test, state, start, setAnswer, next, prev, finish } = useTest();
   const { status, currentQuestionIndex, answers, direction } = state;
+  const reduced = usePrefersReducedMotion();
 
   const question =
     status === "running" ? test.questions[currentQuestionIndex] : null;
@@ -30,7 +32,24 @@ export function TestRunner() {
   const selected = question ? answers[question.id] ?? [] : [];
   const isLast = currentQuestionIndex === test.questions.length - 1;
   const canProceed = selected.length > 0;
+  const hadAnswerBefore = question ? (answers[question.id]?.length ?? 0) > 0 : false;
   const autoAdvanceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const slideVariants = useMemo(
+    () =>
+      reduced
+        ? {
+            enter: { opacity: 0 },
+            center: { opacity: 1 },
+            exit: { opacity: 0 },
+          }
+        : {
+            enter: (dir: 1 | -1) => ({ x: dir * 60, opacity: 0 }),
+            center: { x: 0, opacity: 1 },
+            exit: (dir: 1 | -1) => ({ x: dir * -60, opacity: 0 }),
+          },
+    [reduced],
+  );
 
   // Между dispatch FINISH и завершением router.replace состояние уже
   // `finished`, но мы ещё не на /result. Чтобы не показывать intro в этом
@@ -69,9 +88,19 @@ export function TestRunner() {
   }, [cancelAutoAdvance, prev]);
 
   const handleAnswer = (questionId: string, answerIds: string[]) => {
+    // Любой клик по варианту отменяет ранее запланированный авто-переход —
+    // иначе старый таймер уведёт пользователя на следующий вопрос раньше,
+    // чем мы успеем переоценить новый выбор.
+    cancelAutoAdvance();
     setAnswer(questionId, answerIds);
-    if (question?.type !== "multi" && answerIds.length > 0) {
-      cancelAutoAdvance();
+    if (
+      question?.type !== "multi" &&
+      answerIds.length > 0 &&
+      // Не авто-продвигаемся, если пользователь вернулся назад и пересматривает
+      // уже ранее отвеченный вопрос — он хочет править ответ, а не перепрыгнуть.
+      !hadAnswerBefore &&
+      !reduced
+    ) {
       autoAdvanceRef.current = setTimeout(() => {
         if (isLast) {
           goToResult();
@@ -86,8 +115,18 @@ export function TestRunner() {
   useEffect(() => {
     if (status !== "running") return;
     const onKey = (e: KeyboardEvent) => {
+      // Enter на фокусированной интерактивной кнопке (Назад/Дальше) уже сработает
+      // как клик. Глобальный listener не должен дублировать действие.
+      const target = e.target as HTMLElement | null;
+      const isInteractive =
+        target?.tagName === "BUTTON" ||
+        target?.tagName === "A" ||
+        target?.tagName === "INPUT" ||
+        target?.tagName === "TEXTAREA";
+
       if (e.key === "ArrowLeft" && currentQuestionIndex > 0) goPrev();
-      else if (e.key === "ArrowRight" || e.key === "Enter") goNext();
+      else if (e.key === "ArrowRight") goNext();
+      else if (e.key === "Enter" && !isInteractive) goNext();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -99,7 +138,15 @@ export function TestRunner() {
   if (status === "finished" && navigatingToResultRef.current) {
     return (
       <main className="min-h-screen flex items-center justify-center px-4">
-        <span className="text-sm text-ink-faint">Открываю результат…</span>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4, ease: easeOutSoft }}
+          className="flex items-center gap-3 text-sm text-ink-faint"
+        >
+          <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.6} />
+          <span>Открываю результат…</span>
+        </motion.div>
       </main>
     );
   }
@@ -194,12 +241,6 @@ export function TestRunner() {
   );
 }
 
-const slideVariants = {
-  enter: (dir: 1 | -1) => ({ x: dir * 60, opacity: 0 }),
-  center: { x: 0, opacity: 1 },
-  exit: (dir: 1 | -1) => ({ x: dir * -60, opacity: 0 }),
-};
-
 function SwipeableArea({
   children,
   onPrev,
@@ -221,10 +262,11 @@ function SwipeableArea({
       drag="x"
       dragControls={controls}
       dragListener
+      dragDirectionLock
       dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.18}
+      dragElastic={0.12}
       onDragEnd={handleDragEnd}
-      className="w-full touch-pan-y"
+      className="w-full touch-pan-y will-change-transform"
     >
       {children}
     </motion.div>

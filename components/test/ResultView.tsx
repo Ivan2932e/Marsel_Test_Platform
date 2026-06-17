@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { Loader2 } from "lucide-react";
 import { useTest } from "@/lib/test-context";
 import {
   calculateScore,
@@ -12,6 +13,7 @@ import {
 } from "@/lib/tests/schema";
 import { ResultCard } from "./ResultCard";
 import { PDFDownloadButton } from "./PDFDownloadButton";
+import { easeOutSoft } from "@/lib/motion";
 
 /**
  * Результирующий экран.
@@ -44,7 +46,16 @@ export function ResultView() {
     // Это защищает результат от затирания после clearSession / restart.
     if (snapshot) return;
 
-    if (Object.keys(state.answers).length === 0) {
+    const answeredCount = Object.keys(state.answers).length;
+    // Если ответов нет вообще, или тест не пройден до конца, или статус
+    // ещё не "finished" — отправляем на intro. Это закрывает попытку
+    // открыть /result напрямую после неполного прохождения (например,
+    // вернулся через Back и ушёл по URL).
+    if (
+      answeredCount === 0 ||
+      answeredCount < test.questions.length ||
+      state.status !== "finished"
+    ) {
       router.replace(`/test/${test.id}`);
       return;
     }
@@ -64,7 +75,15 @@ export function ResultView() {
     setSnapshot({ score, maxScore, range });
     // Зачищаем sessionStorage на следующем кадре — snapshot уже у нас.
     requestAnimationFrame(() => clearSession());
-  }, [hydrated, snapshot, state.answers, test, router, clearSession]);
+  }, [
+    hydrated,
+    snapshot,
+    state.answers,
+    state.status,
+    test,
+    router,
+    clearSession,
+  ]);
 
   /**
    * Перезапуск теста: достаточно навигировать на /test/<id>.
@@ -79,8 +98,16 @@ export function ResultView() {
 
   if (!snapshot) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
-        <span className="text-sm text-ink-faint">Считаю результат…</span>
+      <main className="min-h-screen flex items-center justify-center px-4">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4, ease: easeOutSoft }}
+          className="flex items-center gap-3 text-sm text-ink-faint"
+        >
+          <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.6} />
+          <span>Считаю результат…</span>
+        </motion.div>
       </main>
     );
   }
@@ -89,7 +116,7 @@ export function ResultView() {
     <motion.main
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.5, ease: easeOutSoft }}
       className="min-h-screen flex items-center justify-center px-4 py-12 sm:py-20"
     >
       <ResultCard

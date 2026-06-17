@@ -440,7 +440,13 @@ export function ResultPdfDocument({
   const ranges = [...test.scoring].sort((a, b) => a.min - b.min);
   const activeIdx = ranges.findIndex((r) => r === range);
   const totalSpan = Math.max(1, maxScore);
-  const markerLeft = `${Math.min(100, (score / totalSpan) * 100)}%`;
+  // Маркер ставим в центр «ячейки» текущего балла, используя тот же знаменатель
+  // (maxScore + 1), что и сегменты — иначе маркер визуально не попадает на свой
+  // диапазон в крайних случаях.
+  const markerLeft = `${Math.min(
+    100,
+    ((score + 0.5) / (totalSpan + 1)) * 100,
+  )}%`;
   const isClinical = range.cta === "contact" && activeIdx >= ranges.length - 1;
   const steps = buildNextSteps(range);
   const aboutTest = buildAboutTest(test);

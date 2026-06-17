@@ -16,15 +16,15 @@ type Props = {
 
 const containerStagger = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.05, delayChildren: 0.1 } },
+  visible: { transition: { staggerChildren: 0.04, delayChildren: 0 } },
 };
 
 const itemFade = {
-  hidden: { opacity: 0, y: 8 },
+  hidden: { opacity: 0, y: 6 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.45, ease: easeOutSoft },
+    transition: { duration: 0.35, ease: easeOutSoft },
   },
 };
 
@@ -130,7 +130,7 @@ function ScaleRow({
               animate={{ opacity: 1, y: 0 }}
               transition={{
                 duration: 0.4,
-                delay: 0.1 + i * 0.04,
+                delay: i * 0.03,
                 ease: easeOutSoft,
               }}
               whileHover={{ y: -3 }}

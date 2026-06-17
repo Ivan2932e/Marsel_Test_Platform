@@ -32,11 +32,10 @@ export function ProgressBar({ current, total }: Props) {
       </div>
       <div className="relative h-[2px] w-full bg-line/80 overflow-hidden rounded-full">
         <motion.div
-          layoutId="test-progress-fill"
           className="absolute left-0 top-0 h-full bg-sage rounded-full"
           initial={false}
           animate={{ width: `${progress * 100}%` }}
-          transition={{ type: "spring", stiffness: 110, damping: 22 }}
+          transition={{ type: "spring", stiffness: 120, damping: 26, mass: 0.6 }}
         />
       </div>
     </div>

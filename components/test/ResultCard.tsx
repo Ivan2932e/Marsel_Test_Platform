@@ -45,8 +45,8 @@ export function ResultCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.96 }}
-      animate={{ opacity: 1, scale: 1 }}
+      initial={{ scale: 0.97 }}
+      animate={{ scale: 1 }}
       transition={{ duration: 0.7, ease: easeOutSoft }}
       className="mx-auto w-full max-w-2xl rounded-[2rem] bg-warm-white border border-line ring-soft p-7 sm:p-12 grain"
     >

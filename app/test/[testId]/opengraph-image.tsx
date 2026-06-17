@@ -22,9 +22,10 @@ const ACCENT_GRADIENTS = {
 export default async function OgImage({
   params,
 }: {
-  params: { testId: string };
+  params: Promise<{ testId: string }>;
 }) {
-  const test = getTestById(params.testId);
+  const { testId } = await params;
+  const test = getTestById(testId);
   const title = test?.title ?? "Психологический тест";
   const subtitle = test?.subtitle ?? "";
   const accent = test?.accent ?? "sage";
