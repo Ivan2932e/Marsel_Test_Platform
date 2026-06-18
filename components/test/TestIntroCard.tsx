@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
-import { Clock, ListChecks, Lock } from "lucide-react";
+import { ArrowLeft, Clock, ListChecks, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { easeOutSoft } from "@/lib/motion";
 import type { Test } from "@/lib/tests/schema";
@@ -20,6 +21,14 @@ export function TestIntroCard({ test, onStart }: Props) {
       className="relative mx-auto w-full max-w-xl rounded-[2rem] bg-warm-white border border-line ring-soft p-7 sm:p-10 grain"
     >
       <div className="relative z-10">
+        <Link
+          href="/test"
+          className="inline-flex items-center gap-1.5 text-[12.5px] text-ink-muted hover:text-ink transition-colors -ml-1 mb-5 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-4 focus-visible:ring-offset-warm-white"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.8} />
+          К каталогу тестов
+        </Link>
+
         <span className="text-[11px] uppercase tracking-[0.2em] text-sage-deep">
           Самопроверка
         </span>

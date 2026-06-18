@@ -32,8 +32,20 @@ export function TestRunner() {
   const selected = question ? answers[question.id] ?? [] : [];
   const isLast = currentQuestionIndex === test.questions.length - 1;
   const canProceed = selected.length > 0;
-  const hadAnswerBefore = question ? (answers[question.id]?.length ?? 0) > 0 : false;
   const autoAdvanceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Запоминаем, был ли ответ на вопрос УЖЕ на момент входа в него.
+  // Render-time-флаг сюда не годится: после первого клика state обновляется,
+  // и повторный клик (быстрая последовательность, double-tap) попадает в
+  // re-render, где "ответ уже есть" → auto-advance не перепланируется, а
+  // старый таймер мы отменили — пользователь застревает на вопросе.
+  const answeredOnEntryRef = useRef<Record<string, boolean>>({});
+  useEffect(() => {
+    if (!question) return;
+    if (!(question.id in answeredOnEntryRef.current)) {
+      answeredOnEntryRef.current[question.id] =
+        (answers[question.id]?.length ?? 0) > 0;
+    }
+  }, [question, answers]);
 
   const slideVariants = useMemo(
     () =>
@@ -93,12 +105,15 @@ export function TestRunner() {
     // чем мы успеем переоценить новый выбор.
     cancelAutoAdvance();
     setAnswer(questionId, answerIds);
+    // Берём состояние «был ли ответ ДО входа на вопрос», а не текущее.
+    // Это позволяет повторным быстрым кликам перепланировать таймер, но не
+    // включает auto-advance, если пользователь вернулся редактировать ответ.
+    const wasAnsweredOnEntry =
+      answeredOnEntryRef.current[questionId] ?? false;
     if (
       question?.type !== "multi" &&
       answerIds.length > 0 &&
-      // Не авто-продвигаемся, если пользователь вернулся назад и пересматривает
-      // уже ранее отвеченный вопрос — он хочет править ответ, а не перепрыгнуть.
-      !hadAnswerBefore &&
+      !wasAnsweredOnEntry &&
       !reduced
     ) {
       autoAdvanceRef.current = setTimeout(() => {
