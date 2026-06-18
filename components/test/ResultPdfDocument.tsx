@@ -85,7 +85,11 @@ const styles = StyleSheet.create({
   pageInner: {
     paddingTop: 44,
     paddingHorizontal: 48,
-    paddingBottom: 70,
+    // Footer стоит position: absolute, bottom: 30 и сам высотой ~25pt с
+    // border-top. Запас 80pt гарантирует, что обычный поток контента не
+    // догонит футер (раньше при 70pt контакт-строки aboutWrap перекрывали
+    // footer на странице 2).
+    paddingBottom: 80,
   },
   // ── header ──
   headerBar: {
@@ -100,9 +104,13 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: 500,
     color: COLORS.ink,
+    // Без явного line-height Cormorant в @react-pdf не резервирует вертикаль
+    // под надстрочные/подстрочные, и следующая строка (brandSub) визуально
+    // налезает сверху на хвостики "М/Р/у".
+    lineHeight: 1.2,
   },
   brandSub: {
-    marginTop: 2,
+    marginTop: 6,
     fontSize: 8.5,
     color: COLORS.sageDeep,
     textTransform: "uppercase",
@@ -128,7 +136,7 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: 500,
     color: COLORS.ink,
-    lineHeight: 1.12,
+    lineHeight: 1.18,
   },
   subtitle: {
     marginTop: 8,
@@ -149,7 +157,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 500,
     color: COLORS.ink,
-    lineHeight: 1.15,
+    lineHeight: 1.22,
   },
   scoreCaption: {
     marginTop: 6,
@@ -215,6 +223,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 500,
     color: COLORS.ink,
+    lineHeight: 1.2,
   },
   body: {
     marginTop: 8,
@@ -283,9 +292,10 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 500,
     color: COLORS.ink,
+    lineHeight: 1.2,
   },
   aboutSub: {
-    marginTop: 2,
+    marginTop: 7,
     fontSize: 9,
     color: COLORS.sageDeep,
     textTransform: "uppercase",
@@ -604,7 +614,29 @@ export function ResultPdfDocument({
           <Text style={styles.sectionHead}>О тесте</Text>
           <Text style={styles.body}>{aboutTest}</Text>
 
-          {/* about Marsel */}
+          <Text style={styles.footer} fixed>
+            Документ сформирован у вас в браузере · ответы никуда не передавались
+          </Text>
+        </View>
+      </Page>
+
+      {/* ───────────────────────────  PAGE 3  ─────────────────────────── */}
+      {/* Карточка специалиста и дисклеймер — на отдельной странице.
+          Иначе суммарная высота (~480pt aboutWrap + ~95pt дисклеймер + шапка
+          + предыдущие блоки) переваливает за рабочее поле A4 и нижние строки
+          контактов уезжают под fixed-футер. */}
+      <Page size="A4" style={styles.page}>
+        <View style={styles.pageInner}>
+          <View style={styles.headerBar}>
+            <View>
+              <Text style={styles.brand}>Мухаметшин Марсель</Text>
+              <Text style={styles.brandSub}>психолог · {CONTACTS.city}</Text>
+            </View>
+            <Text style={styles.date}>Стр. 3</Text>
+          </View>
+
+          <Text style={styles.eyebrow}>Об авторе</Text>
+
           <View style={styles.aboutWrap}>
             <Text style={styles.aboutName}>Мухаметшин Марсель Алмазович</Text>
             <Text style={styles.aboutSub}>

@@ -23,13 +23,13 @@ export function TestIntroCard({ test, onStart }: Props) {
       <div className="relative z-10">
         <Link
           href="/test"
-          className="inline-flex items-center gap-1.5 text-[12.5px] text-ink-muted hover:text-ink transition-colors -ml-1 mb-5 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-4 focus-visible:ring-offset-warm-white"
+          className="flex w-fit items-center gap-1.5 text-[12.5px] text-ink-muted hover:text-ink transition-colors -ml-1 mb-6 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-4 focus-visible:ring-offset-warm-white"
         >
           <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.8} />
           К каталогу тестов
         </Link>
 
-        <span className="text-[11px] uppercase tracking-[0.2em] text-sage-deep">
+        <span className="block text-[11px] uppercase tracking-[0.2em] text-sage-deep">
           Самопроверка
         </span>
 
