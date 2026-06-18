@@ -63,13 +63,16 @@ export function PDFDownloadButton({ test, score, maxScore, range }: Props) {
       setTimeout(() => URL.revokeObjectURL(url), 0);
       setStatus({ kind: "idle" });
     } catch (e) {
-      console.error("PDF generation failed", e);
+      // Полная диагностика в консоли: без этого нечего показать пользователю
+      // при отчёте о баге. Тег [pdf] облегчает поиск в DevTools.
+      const stack = e instanceof Error ? e.stack ?? e.message : String(e);
+      console.error("[pdf] generation failed:\n", stack, "\nraw:", e);
       const message =
         e instanceof Error && e.message
           ? e.message
           : "Что-то пошло не так при сборке документа.";
       setStatus({ kind: "error", message });
-      setTimeout(() => setStatus({ kind: "idle" }), 6000);
+      setTimeout(() => setStatus({ kind: "idle" }), 10000);
     }
   };
 

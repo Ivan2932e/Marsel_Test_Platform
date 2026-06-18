@@ -6,16 +6,16 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium tracking-tight transition-[transform,background-color,color,box-shadow] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-2 focus-visible:ring-offset-cream disabled:pointer-events-none disabled:opacity-50 select-none",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium tracking-tight transition-[background-color,color,box-shadow,border-color] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-2 focus-visible:ring-offset-cream disabled:pointer-events-none disabled:opacity-50 select-none transform-gpu",
   {
     variants: {
       variant: {
         primary:
-          "bg-ink text-cream hover:bg-ink-soft hover:-translate-y-0.5 shadow-[0_8px_24px_-12px_rgba(42,39,36,0.4)] hover:shadow-[0_16px_36px_-12px_rgba(42,39,36,0.5)]",
+          "bg-ink text-cream hover:bg-ink-soft shadow-[0_8px_24px_-12px_rgba(42,39,36,0.4)] hover:shadow-[0_18px_38px_-14px_rgba(42,39,36,0.55)]",
         ghost:
           "bg-transparent text-ink border border-ink/15 hover:bg-ink/[0.04] hover:border-ink/30",
         sage:
-          "bg-sage text-cream hover:bg-sage-deep hover:-translate-y-0.5 shadow-[0_8px_24px_-12px_rgba(95,111,88,0.5)]",
+          "bg-sage text-cream hover:bg-sage-deep shadow-[0_8px_24px_-12px_rgba(95,111,88,0.5)] hover:shadow-[0_18px_38px_-14px_rgba(95,111,88,0.6)]",
         link: "text-ink underline-offset-4 hover:underline rounded-none px-0",
       },
       size: {

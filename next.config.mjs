@@ -4,6 +4,9 @@
  *
  * 'unsafe-inline' для script/style нужен Next.js runtime (chunks loader) и
  * Tailwind. Чтобы убрать — потребуется nonces-pipeline (отдельная задача).
+ * 'wasm-unsafe-eval' нужен @react-pdf/renderer — он инстанцирует WASM-модуль
+ * fontkit для парсинга шрифтов; без этой директивы WebAssembly.instantiate()
+ * падает с CompileError и кнопка «Скачать PDF» возвращает ошибку.
  * connect-src ограничен 'self' — это явно блокирует любые внешние fetch
  * (включая случайно добавленную аналитику), что для нас важнее.
  *
@@ -13,11 +16,12 @@
  */
 const cspDirectives = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
+  "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self' data:",
   "connect-src 'self'",
+  "worker-src 'self' blob:",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

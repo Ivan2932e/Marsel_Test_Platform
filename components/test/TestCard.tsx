@@ -33,7 +33,7 @@ export function TestCard({ test, index }: Props) {
     >
       <Link
         href={`/test/${test.id}`}
-        className="group block rounded-3xl border border-line bg-warm-white ring-soft transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:ring-soft-hover hover:border-ink/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
+        className="group block rounded-3xl border border-line bg-warm-white ring-soft transition-[box-shadow,border-color] duration-300 hover:ring-soft-hover hover:border-ink/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
       >
         <div
           className={cn(
